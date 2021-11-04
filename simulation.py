@@ -8,4 +8,5 @@ while not(vifdor):
         if randint(1,50) == 25:
             points[equipe] = 150
             vifdor = True
+            break
 print(f"lequipe 1 a marqué {points[0]}, et l'equipe 2 a marqué {points[1]}")
