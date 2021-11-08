@@ -1,6 +1,5 @@
 from random import randint
 import pygame as pg
-from pygame.locals import *
 import os
 
 pg.init()
