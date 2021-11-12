@@ -82,7 +82,7 @@ def main_menu(first_menu):
             if event.key == pg.K_UP:    # L'utilisateur a appuyé sur la flèche du haut
                 if first_menu: selected = "Start"
                 elif selected == "Back": selected = "Single game"
-                else: selected = "10 games"
+                else: selected = "10 bets"
             elif event.key == pg.K_DOWN:    # L'utilisateur a appuyé sur la flèche du bas
                 if first_menu: selected = "Quit"
                 elif selected == "Single game": selected = "Back"
@@ -90,7 +90,7 @@ def main_menu(first_menu):
             elif event.key == pg.K_RETURN:    #L'utilisateur a appuyé sur entrée
                 if first_menu:
                     if selected == "Start":
-                        selected = "10 games"
+                        selected = "10 bets"
                         is_this_main_menu = False
                     elif selected == "Quit":
                         pg.quit()
@@ -98,7 +98,7 @@ def main_menu(first_menu):
                 else:
                     if selected == "Single game":
                         game(True)
-                    elif selected == "10 games":
+                    elif selected == "10 bets":
                         game(False)
                     else:
                         is_this_main_menu = True
@@ -124,10 +124,10 @@ def main_menu(first_menu):
             text2 = text_format("Single game", font, 80, white)
         else:
             text2 = text_format("Single game", font, 60, black)
-        if selected == "10 games":
-            text1 = text_format("10 games", font, 80, white)
+        if selected == "10 bets":
+            text1 = text_format("10 bets", font, 80, white)
         else:
-            text1 = text_format("10 games", font, 60, black)
+            text1 = text_format("10 bets", font, 60, black)
         if selected == "Back":
             text3 = text_format("Back", font, 80, white)
         else:
@@ -306,7 +306,7 @@ def game(single):
             anim_scores(manche, prev[0], prev[1], vifdor)
             if vifdor: break
     else:
-        print("10 games!")
+        print("10 bets!")
     leaderboard() # Affiche le classement des Maisons et des personnages
 
 def running():
