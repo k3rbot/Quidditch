@@ -1,5 +1,4 @@
 projet_tab = []
-nb = 0 
 
 with open("Characters.csv", mode='r', encoding='utf-8') as f:
     lines = f.readlines()
