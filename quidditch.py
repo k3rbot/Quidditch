@@ -25,25 +25,25 @@ font = "HarryPotterFont.ttf"    # On utilise une police d"écriture spécifique
 selected = "Start"  # On sélectionne "Start" au lancement du programme
 is_this_main_menu = True    # On est au menu principal au lancement du programme
 house = {    # Dictionnaire qui nous permettra d"indiquer le score de chaque équipe pour les paris et le quidditch lors des matchs
-    "Ravenclaw" : {
-        "Playing" : False,
-        "Color" : "blue",
-        "Points" : 0
+    "Ravenclaw": {
+        "Playing": False,
+        "Color": "blue",
+        "Points": 0
     },
-    "Gryffindor" : {
-        "Playing" : False,
-        "Color" : "red",
-        "Points" : 0
+    "Gryffindor": {
+        "Playing": False,
+        "Color": "red",
+        "Points": 0
     },
     "Hufflepuff": {
-        "Playing" : False,
-        "Color" : "yellow",
-        "Points" : 0
+        "Playing": False,
+        "Color": "yellow",
+        "Points": 0
     },
-    "Slytherin" : {
-        "Playing" : False,
-        "Color" : "green",
-        "Points" : 0
+    "Slytherin": {
+        "Playing": False,
+        "Color": "green",
+        "Points": 0
     }
 }
 # On stocke toutes les données du fichier csv dans un tableau contenant des dictionnaires
@@ -55,7 +55,7 @@ with open("Characters.csv", mode='r', encoding='utf-8') as f:
     for line in lines[1:]:
         line = line.strip()
         values = line.split(';')
-        character = {"Points" : 2}
+        character = {"Points": 2}
         for i in range(len(keys)):
             if i != 0:
                 character[keys[i]] = values[i]
@@ -282,27 +282,34 @@ def play(): # Simulation du match
             break
     
 def bet(): # Pari de chaque personnages
+    global characters
     playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
     for i in range(len(characters)):
-        if characters[i]["House"] == playing[0] or characters[i]["House"] == playing[1] and characters[i]["Points"] != 0:
+        if (characters[i]["House"] == playing[0] or characters[i]["House"] == playing[1]) and characters[i]["Points"] > 0:
             characters[i]["Points"] -= 1
-            characters[i]["Bet"] = randint(1, 22)*10
+            characters[i]["Bet"] = randint(1, 23)*10
+        else: characters[i]["Bet"] = 0
 
 def distribute_points():
+    global characters
     playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
     winner = playing[0] if house[playing[0]]["Points"] > house[playing[1]]["Points"] else playing[1]
-    best_bet = [999, 0]
+    best_bet =  [999, 0]
     for i in range(len(characters)):
         if characters[i]["House"] == winner:
             characters[i]["Points"] += 5
             if characters[i]["Bet"] - house[winner]["Points"] < best_bet[0] and characters[i]["Bet"] - house[winner]["Points"] > -best_bet[0]:
                 best_bet[0] = characters[i]["Bet"]
                 best_bet[1] = i
-    characters[i]["Points"] += 30
+    characters[best_bet[1]]["Points"] += 30
 
+def anim_games(game_teams, games_score, nb_game):
+    # pg.draw.rect(screen, white, (20(nb_game+1), 20*(nb_game+1), 136, 135), 5)
+    pg.display.update()
+ 
 # On affiche un classement des scores des joueurs pariants et un classement des maisons
 def leaderboard():
-    global selected, is_this_main_menu
+    global selected, is_this_main_menu, characters
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -312,6 +319,9 @@ def leaderboard():
     for team in ("Hufflepuff", "Gryffindor", "Slytherin", "Ravenclaw"):
         house[team]["Playing"] = False
         house[team]["Points"] = 0
+    for i in characters:
+        i["Points"] = 0
+        i["Bet"] = 0
     selected = "Start"
     is_this_main_menu = True
     print("Leaderboard")
@@ -333,12 +343,19 @@ def game(single):
             if game %2 == 0:
                 house["Gryffindor"]["Playing"] = True
                 house["Slytherin"]["Playing"] = True
+                house["Hufflepuff"]["Playing"] = False
+                house["Ravenclaw"]["Playing"] = False
             else:
                 house["Hufflepuff"]["Playing"] = True
                 house["Ravenclaw"]["Playing"] = True
+                house["Gryffindor"]["Playing"] = False
+                house["Slytherin"]["Playing"] = False
             bet()
             play()
             distribute_points()
+            anim_games(("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw"),
+            (house["Gryffindor"]["Points"], house["Slytherin"]["Points"]) if house["Gryffindor"]["Playing"] else (house["Hufflepuff"]["Points"], house["Ravenclaw"]["Points"]),
+            game)
 
     leaderboard() # Affiche le classement des Maisons et des personnages
 
@@ -347,7 +364,7 @@ def running():
         main_menu(True if is_this_main_menu else False)  # Si on est sur le menu principal on affiche le menu principal sinon on affiche le sous-menu
         pg.display.update() # On rafraichit l'image
         clock.tick(FPS) # On définit la vitesse de rafraichissement
-        pg.display.set_caption("Quidditch simulator 💀")    # On définit le titre de la fenêtre
+        pg.display.set_caption("Quidditch simulator")    # On définit le titre de la fenêtre
 
 running()
 pg.quit()
