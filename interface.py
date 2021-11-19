@@ -250,7 +250,7 @@ def anim_scores(round, prev1, prev2, snitch):
         if (snitch or round == 7) and i == 5: 
             pg.time.wait(1500)
             screen.fill(black)
-            if house[teams[0]]['Points']['Quidditch'] == house[teams[1]]['Points']:
+            if house[teams[0]]['Points'] == house[teams[1]]['Points']:
                 title = text_format("Draw...", font, 90, yellow)
                 image = pg.image.load(f"{teams[0]}.png")
                 image2 = pg.image.load(f"{teams[1]}.png")
@@ -290,12 +290,16 @@ def bet(): # Pari de chaque personnages
 
 def distribute_points():
     playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
-    winner = playing[0] if house[playing[0]]["Score"] > house[playing[1]]["Score"] else playing[1]
+    winner = playing[0] if house[playing[0]]["Points"] > house[playing[1]]["Points"] else playing[1]
+    best_bet = [999, 0]
     for i in range(len(characters)):
         if characters[i]["House"] == winner:
             characters[i]["Points"] += 5
-            characters[i]["Bet"] = 0
- 
+            if characters[i]["Bet"] - house[winner]["Points"] < best_bet[0] and characters[i]["Bet"] - house[winner]["Points"] > -best_bet[0]:
+                best_bet[0] = characters[i]["Bet"]
+                best_bet[1] = i
+    characters[i]["Points"] += 30
+
 # On affiche un classement des scores des joueurs pariants et un classement des maisons
 def leaderboard():
     global selected, is_this_main_menu
@@ -314,7 +318,7 @@ def leaderboard():
 
 # On simule la partie ou les 10 parties en fonction du paramètre entré (une partie - ou - 10 parties)
 def game(single):
-    global house
+    global house, vifdor
     if single:  # Si on ne simule qu'une partie, on lance l'animation de l'annoncement du match + celle des points gagnés par chaque équipe par rapport à la simu
         match_anouncement()
         vifdor = False
