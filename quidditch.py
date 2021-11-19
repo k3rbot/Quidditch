@@ -303,8 +303,9 @@ def distribute_points():
                 best_bet[1] = i
     characters[best_bet[1]]["Points"] += 30
 
-def anim_games(game_teams, games_score):
-    pg.draw.rect(screen, white, (20, 125, 136, 300), 5)
+def anim_games(game_teams, games_score, nb_game):
+    # pg.draw.rect(screen, white, (20(nb_game+1), 20*(nb_game+1), 136, 135), 5)
+    pg.display.update()
  
 # On affiche un classement des scores des joueurs pariants et un classement des maisons
 def leaderboard():
@@ -352,7 +353,9 @@ def game(single):
             bet()
             play()
             distribute_points()
-            anim_games()
+            anim_games(("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw"),
+            (house["Gryffindor"]["Points"], house["Slytherin"]["Points"]) if house["Gryffindor"]["Playing"] else (house["Hufflepuff"]["Points"], house["Ravenclaw"]["Points"]),
+            game)
 
     leaderboard() # Affiche le classement des Maisons et des personnages
 
