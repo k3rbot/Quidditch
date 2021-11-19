@@ -6,5 +6,5 @@
 # Menu de selection OK;
 # Simulation une partie OK;
 # Paris OK;
-# Points gagnés avec les paris EN COURS;
+# Points gagnés avec les paris OK;
 # Classement EN COURS
