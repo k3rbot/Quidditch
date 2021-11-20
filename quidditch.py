@@ -3,6 +3,8 @@ from random import randint
 import pygame as pg
 import os
 
+from pygame import display
+
 pg.init()   # On initialise PyGame
 
 os.environ["SDL_VIDEO_CENTERED"] = "1"  # On centre la fenêtre PyGame
@@ -16,15 +18,19 @@ black = (0, 0, 0)
 gray = (50, 50, 50)
 red = (255, 0, 0)
 green = (34,139,34)
-violet = (238,130,238)
+violet = (128,0,128)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
+golden = (212,175,55)
+silver = (192,192,192)
+bronze = (205, 127, 50)
+orange = (255,140,0)
 
 font = "HarryPotterFont.ttf"    # On utilise une police d"écriture spécifique
 
 selected = "Start"  # On sélectionne "Start" au lancement du programme
 is_this_main_menu = True    # On est au menu principal au lancement du programme
-house = {    # Dictionnaire qui nous permettra d"indiquer le score de chaque équipe pour les paris et le quidditch lors des matchs
+houses = {    # Dictionnaire qui nous permettra d"indiquer le score de chaque équipe pour les paris et le quidditch lors des matchs
     "Ravenclaw": {
         "Playing": False,
         "Color": "blue",
@@ -159,19 +165,18 @@ def match_anouncement():
     title = text_format("The match will be", font, 60, violet)
 
     if randint(0, 1) == 0:  # On détermine au hasard soit un match Gryffondor - Serpentard soit Poufsouffle - Serdaigle
-        house["Gryffindor"]["Playing"] = True
-        house["Slytherin"]["Playing"] = True
-        team1 = text_format("Gryffindor", font, 60, red)
-        team2 = text_format("Slytherin", font, 60, green)
-        v = text_format("V", font, 200, red)
-        s = text_format("S", font, 200, green)
+        houses["Hufflepuff"]["Playing"] = True
+        houses["Ravenclaw"]["Playing"] = True
+        playing = ["Hufflepuff", "Ravenclaw"]
     else:
-        house["Hufflepuff"]["Playing"] = True
-        house["Ravenclaw"]["Playing"] = True
-        team1 = text_format("Hufflepuff", font, 60, yellow)
-        team2 = text_format("Ravenclaw", font, 60, blue)
-        v = text_format("V", font, 200, yellow)
-        s = text_format("S", font, 200, blue)
+        houses["Gryffindor"]["Playing"] = True
+        houses["Slytherin"]["Playing"] = True
+        playing = ["Gryffindor", "Slytherin"]
+
+    team1 = text_format(playing[0], font, 60, houses[playing[0]]["Color"])
+    team2 = text_format(playing[1], font, 60, houses[playing[1]]["Color"])
+    v = text_format("V", font, 200, houses[playing[0]]["Color"])
+    s = text_format("S", font, 200, houses[playing[1]]["Color"])   
 
     title_rect = title.get_rect()
     team1_rect = team1.get_rect()
@@ -198,7 +203,7 @@ def match_anouncement():
 
 # On anime l'augmentation des scores de chaque équipe après une manche
 def anim_scores(round, prev1, prev2, snitch):
-    teams = ("Hufflepuff", "Ravenclaw") if house["Ravenclaw"]["Playing"] else ("Gryffindor", "Slytherin")
+    teams = ("Hufflepuff", "Ravenclaw") if houses["Ravenclaw"]["Playing"] else ("Gryffindor", "Slytherin")
     Time = 0
     for i in range(1,6):
         for event in pg.event.get():
@@ -216,14 +221,14 @@ def anim_scores(round, prev1, prev2, snitch):
             title3 = text_format("The snitch has been catched !", font, 60, yellow)
             if round*5 + 1 != Time: Time = round*5 + 1
             time = text_format(f"{Time}:00", font, 70, red)
-            team1_score = text_format(str(house[teams[0]]["Points"]), font, 80, house[teams[0]]["Color"])
-            team2_score = text_format(str(house[teams[1]]["Points"]), font, 80, house[teams[1]]["Color"])
+            team1_score = text_format(str(houses[teams[0]]["Points"]), font, 80, houses[teams[0]]["Color"])
+            team2_score = text_format(str(houses[teams[1]]["Points"]), font, 80, houses[teams[1]]["Color"])
             title3_rect = title3.get_rect()
             screen.blit(title3, (screen_width/2 - (title3_rect[2]/2), 475))
         else:
             time = text_format(f"{round*5 + i}:00", font, 70, red)
-            team1_score = text_format(str(int((house[teams[0]]["Points"] - prev1) / 5 * i + prev1)), font, 80, house[teams[0]]["Color"])
-            team2_score = text_format(str(int((house[teams[1]]["Points"] - prev2) / 5 * i + prev2)), font, 80, house[teams[1]]["Color"])
+            team1_score = text_format(str(int((houses[teams[0]]["Points"] - prev1) / 5 * i + prev1)), font, 80, houses[teams[0]]["Color"])
+            team2_score = text_format(str(int((houses[teams[1]]["Points"] - prev2) / 5 * i + prev2)), font, 80, houses[teams[1]]["Color"])
 
         title_rect = title.get_rect()
         title2_rect = title2.get_rect()
@@ -250,7 +255,7 @@ def anim_scores(round, prev1, prev2, snitch):
         if (snitch or round == 7) and i == 5: 
             pg.time.wait(1500)
             screen.fill(black)
-            if house[teams[0]]['Points'] == house[teams[1]]['Points']:
+            if houses[teams[0]]['Points'] == houses[teams[1]]['Points']:
                 title = text_format("Draw...", font, 90, yellow)
                 image = pg.image.load(f"{teams[0]}.png")
                 image2 = pg.image.load(f"{teams[1]}.png")
@@ -260,7 +265,7 @@ def anim_scores(round, prev1, prev2, snitch):
                 screen.blit(image2, (screen_width/2 + 175 - (image2_rect[2]/2), 200))
             else:
                 title = text_format("And the winner is :", font, 90, yellow)
-                image = pg.image.load(f"{teams[0] if house[teams[0]]['Points'] > house[teams[1]]['Points'] else teams[1]}.png")
+                image = pg.image.load(f"{teams[0] if houses[teams[0]]['Points'] > houses[teams[1]]['Points'] else teams[1]}.png")
                 image_rect = image.get_rect()
                 screen.blit(image, (screen_width/2 - (image_rect[2]/2), 200))
             
@@ -271,19 +276,19 @@ def anim_scores(round, prev1, prev2, snitch):
         else: 
             pg.time.wait(250)
 
-def play(): # Simulation du match
-    global house, vifdor
-    for equipe in (("Hufflepuff", "Ravenclaw") if house["Ravenclaw"]["Playing"] else ("Gryffindor", "Slytherin")):
+def play_5min(): # Simulation du match
+    global houses, vifdor
+    for equipe in (("Hufflepuff", "Ravenclaw") if houses["Ravenclaw"]["Playing"] else ("Gryffindor", "Slytherin")):
         if randint(1,3) == 2:
-            house[equipe]["Points"] += 10
+            houses[equipe]["Points"] += 10
         if randint(1,50) == 25:
-            house[equipe]["Points"] += 150
+            houses[equipe]["Points"] += 150
             vifdor = True
             break
     
 def bet(): # Pari de chaque personnages
     global characters
-    playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
+    playing = ("Gryffindor", "Slytherin") if houses["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
     for i in range(len(characters)):
         if (characters[i]["House"] == playing[0] or characters[i]["House"] == playing[1]) and characters[i]["Points"] > 0:
             characters[i]["Points"] -= 1
@@ -292,73 +297,164 @@ def bet(): # Pari de chaque personnages
 
 def distribute_points():
     global characters
-    playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
-    winner = playing[0] if house[playing[0]]["Points"] > house[playing[1]]["Points"] else playing[1]
+    playing = ("Gryffindor", "Slytherin") if houses["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
+    winner = playing[0] if houses[playing[0]]["Points"] > houses[playing[1]]["Points"] else playing[1]
     best_bet =  [999, 0]
     for i in range(len(characters)):
         if characters[i]["House"] == winner:
             characters[i]["Points"] += 5
-            if characters[i]["Bet"] - house[winner]["Points"] < best_bet[0] and characters[i]["Bet"] - house[winner]["Points"] > -best_bet[0]:
+            if characters[i]["Bet"] - houses[winner]["Points"] < best_bet[0] and characters[i]["Bet"] - houses[winner]["Points"] > -best_bet[0]:
                 best_bet[0] = characters[i]["Bet"]
                 best_bet[1] = i
     characters[best_bet[1]]["Points"] += 30
 
 def anim_games(nb_game):
-    playing = ("Gryffindor", "Slytherin") if house["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
+    playing = ("Gryffindor", "Slytherin") if houses["Gryffindor"]["Playing"] else ("Hufflepuff", "Ravenclaw")
+
     pg.draw.rect(screen, white,(20 + 155 * nb_game - 775*int(nb_game/5), 10 + 156 * int(nb_game/5), 136, 110), 5)
+    title = text_format(f"Match {nb_game+1}", font, 25, yellow)
+    team1_score = text_format(str(houses[playing[0]]["Points"]), font, 30, houses[playing[0]]["Color"])
+    score_separator = text_format(':', font, 30, houses[playing[0]]["Color"] if houses[playing[0]]["Points"] > houses[playing[1]]["Points"] else houses[playing[1]]["Color"])
+    team2_score = text_format(str(houses[playing[1]]["Points"]), font, 30, houses[playing[1]]["Color"])
+
+    title_rect = title.get_rect()
+    team1_score_rect = team1_score.get_rect()
+
+    screen.blit(title, (88 + 155 * nb_game - 775*int(nb_game/5) - (title_rect[2]/2), 17 + 156 * int(nb_game/5)))
+    screen.blit(score_separator, (88 + 155 * nb_game - 775*int(nb_game/5), 65 + 156 * int(nb_game/5)))
+    screen.blit(team1_score, (75 + 155 * nb_game - 775*int(nb_game/5) - (team1_score_rect[2]), 65 + 156 * int(nb_game/5)))
+    screen.blit(team2_score, (110 + 155 * nb_game - 775*int(nb_game/5), 65 + 156 * int(nb_game/5)))
+
     pg.display.update()
-    pg.time.wait(100)
- 
+    pg.time.wait(250)
+
+def average_points():
+    average = 0
+    for i in characters:
+        average += i["Points"]
+    return int(average/140)
+
 # On affiche un classement des scores des joueurs pariants et un classement des maisons
 def leaderboard():
     global selected, is_this_main_menu, characters
+    characters = sorted(characters, key=lambda x: x["Points"], reverse = True)
 
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            pg.quit()
-            quit()
-    
+    screen.fill(black)
+    for i in range(14, -1, -1):
+        pg.draw.rect(screen, white,(100, 17 + 36*(i+1), 600, 37), 1)
+        title = text_format("Leaderboard", font, 37, yellow)
+        text = text_format(f"Average of {average_points()} points", font, 20, white)
+        place = text_format(str(i+1), font, 35, golden if i == 0 else silver if i == 1 else bronze if i == 2 else white)
+        person = text_format(characters[i]["Name"], font, 24, houses[characters[i]["House"]]["Color"])
+        score = text_format(str(characters[i]["Points"]), font, 32, yellow)
+
+        title_rect = title.get_rect()
+        screen.blit(title, (screen_width/2 - title_rect[2]/2, 9))
+        screen.blit(text, (600, 9))
+        screen.blit(place, (120, 19 + 36*(i+1)))
+        screen.blit(person, (170, 19 + 36*(i+1)))
+        screen.blit(score, (650, 19 + 36*(i+1)))
+
+        pg.display.update()
+        pg.time.wait(250)
+
     for team in ("Hufflepuff", "Gryffindor", "Slytherin", "Ravenclaw"):
-        house[team]["Playing"] = False
-        house[team]["Points"] = 0
-    for i in characters:
-        i["Points"] = 0
-        i["Bet"] = 0
+        houses[team]["Playing"] = False
+        houses[team]["Points"] = 0
+    for i in range(len(characters)):
+        print(f"{i+1}- {characters[i]['Name']} with {characters[i]['Points']}")
+    
     selected = "Start"
     is_this_main_menu = True
     print("Leaderboard")
 
+def winner():
+    screen.fill(black)
+
+    title = text_format("The winner is:", font, 70, yellow)
+    winner = text_format(characters[0]["Name"], font, 60, violet)
+    points = text_format(f"With {characters[0]['Points']} points!", font, 55, golden)
+    house_text = text_format("House:", font, 25, orange)
+    house = text_format(characters[0]["House"], font, 25, houses[characters[0]["House"]]["Color"])
+    wand  = text_format(f"Wand: {characters[0]['Wand']}", font, 25, orange)
+    job  = text_format(f"Job: {characters[0]['Job']}", font, 25, orange)
+    gender  = text_format(f"Gender: {characters[0]['Gender']}", font, 25, orange)
+    patronus  = text_format(f"Patronus: {characters[0]['Patronus']}", font, 25, orange)
+
+    title_rect = title.get_rect()
+    winner_rect = winner.get_rect()
+    points_rect = points.get_rect()
+    house_text_rect = house_text.get_rect()
+    house_rect = house.get_rect()
+    wand_rect = wand.get_rect()
+    job_rect = job.get_rect()
+    gender_rect = gender.get_rect()
+    patronus_rect = patronus.get_rect()
+
+    screen.blit(title, (screen_width/2 - title_rect[2]/2, 50))
+    screen.blit(winner, (screen_width/2 - winner_rect[2]/2, 150))
+    screen.blit(points, (screen_width/2 - points_rect[2]/2, 250))
+    screen.blit(house_text, (screen_width/2 - 50 - house_text_rect[2]/2, 350))
+    screen.blit(house, (screen_width/2 + 50 - house_rect[2]/2, 350))
+    screen.blit(wand, (screen_width/2 - wand_rect[2]/2, 390))
+    screen.blit(job, (screen_width/2 - job_rect[2]/2, 430))
+    screen.blit(gender, (screen_width/2 - gender_rect[2]/2, 470))
+    screen.blit(patronus, (screen_width/2 - patronus_rect[2]/2, 510))
+
+    pg.display.update()
+    pg.time.wait(10000)
+
+    for i in range(len(characters)):
+        characters[i]["Points"] = 2
+        characters[i]["Bet"] = 0
+
 # On simule la partie ou les 10 parties en fonction du paramètre entré (une partie - ou - 10 parties)
 def game(single):
-    global house, vifdor
+    global houses, vifdor
+    vifdor = False
     if single:  # Si on ne simule qu'une partie, on lance l'animation de l'annoncement du match + celle des points gagnés par chaque équipe par rapport à la simu
         match_anouncement()
-        vifdor = False
+        bet()
         for manche in range(8):
-            prev = (house["Hufflepuff" if house["Ravenclaw"]["Playing"] else "Gryffindor"]["Points"],
-                    house["Ravenclaw" if house["Ravenclaw"]["Playing"] else "Slytherin"]["Points"])
-            play()
+            prev = (houses["Hufflepuff" if houses["Ravenclaw"]["Playing"] else "Gryffindor"]["Points"],
+                    houses["Ravenclaw" if houses["Ravenclaw"]["Playing"] else "Slytherin"]["Points"])
+            play_5min()
             anim_scores(manche, prev[0], prev[1], vifdor)
             if vifdor: break
+        distribute_points()
+
     else:
         screen.fill(black)
         for game in range(20):
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    quit()
+            vifdor = False
             if game %2 == 0:
-                house["Gryffindor"]["Playing"] = True
-                house["Slytherin"]["Playing"] = True
-                house["Hufflepuff"]["Playing"] = False
-                house["Ravenclaw"]["Playing"] = False
+                houses["Gryffindor"]["Playing"] = True
+                houses["Slytherin"]["Playing"] = True
+                houses["Gryffindor"]["Points"] = 0
+                houses["Slytherin"]["Points"] = 0
+                houses["Hufflepuff"]["Playing"] = False
+                houses["Ravenclaw"]["Playing"] = False
             else:
-                house["Hufflepuff"]["Playing"] = True
-                house["Ravenclaw"]["Playing"] = True
-                house["Gryffindor"]["Playing"] = False
-                house["Slytherin"]["Playing"] = False
+                houses["Hufflepuff"]["Playing"] = True
+                houses["Ravenclaw"]["Playing"] = True
+                houses["Hufflepuff"]["Points"] = 0
+                houses["Ravenclaw"]["Points"] = 0
+                houses["Gryffindor"]["Playing"] = False
+                houses["Slytherin"]["Playing"] = False
             bet()
-            play()
+            for _ in range(8):
+                play_5min()
+                if vifdor: break
             distribute_points()
             anim_games(game)
-
-    leaderboard() # Affiche le classement des Maisons et des personnages
+    pg.time.wait(1000)
+    leaderboard()
+    pg.time.wait(5000)
+    winner()
 
 def running():
     while 1:
