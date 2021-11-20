@@ -453,18 +453,19 @@ def distribute_points():
         "Points"] > houses[playing[1]]["Points"] else playing[1]
     best_bet = [999, 0]
     # On itère dans toute la liste de personnages pour leur rajouter
-    # des points ou non
-    for i in range(len(characters)):
-        if characters[i]["House"] == winner:
-            characters[i]["Points"] += 5
-            # Si une personne à plus ou moins le score le plus proche
-            # on sauvegarde son score si une autre personne fait mieux
-            if characters[i]["Bet"] - houses[winner]["Points"] < best_bet[
-                0]and characters[i]["Bet"] - houses[winner][
-                    "Points"] > -best_bet[0]:
-                best_bet[0] = characters[i]["Bet"]
-                best_bet[1] = i
-    characters[best_bet[1]]["Points"] += 30
+    # des points ou non seulement si il y a un vainqueur
+    if houses[playing[0]]["Points"] != houses[playing[1]]["Points"]:
+        for i in range(len(characters)):
+            if characters[i]["House"] == winner:
+                characters[i]["Points"] += 5
+                # Si une personne à plus ou moins le score le plus proche
+                # on sauvegarde son score si une autre personne fait mieux
+                if characters[i]["Bet"] - houses[winner]["Points"] < best_bet[
+                    0]and characters[i]["Bet"] - houses[winner][
+                        "Points"] > -best_bet[0]:
+                    best_bet[0] = characters[i]["Bet"]
+                    best_bet[1] = i
+        characters[best_bet[1]]["Points"] += 30
 
 
 def anim_games(nb_game):
